@@ -3,24 +3,24 @@ const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
+
 const commands = [];
-const commandFiles = fs.readdirSync(path.join(__dirname, 'src', 'commands')).filter(f => f.endsWith('.js'));
-for (const file of commandFiles) {
-  const cmd = require(`./src/commands/${file}`);
-  commands.push(cmd.data.toJSON());
+const files = fs.readdirSync(path.join(__dirname, 'src', 'commands')).filter(f => f.endsWith('.js'));
+for (const file of files) {
+const cmd = require(`./src/commands/${file}`);
+commands.push(cmd.data.toJSON());
 }
+
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
+
 (async () => {
-  try {
-    console.log('Déploiement des commandes (guild)...');
-    await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-      { body: commands },
-    );
-    console.log('Commandes (guild) déployées.');
-  } catch (error) {
-    console.error(error);
-  }
+try {
+console.log('Deploying slash commands...');
+await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
+console.log('Commands deployed.');
+} catch (err) {
+console.error(err);
+}
 })();
