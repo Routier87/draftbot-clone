@@ -1,22 +1,20 @@
 const { SlashCommandBuilder } = require('discord.js');
 const db = require('../db');
 
+
 module.exports = {
-  data: new SlashCommandBuilder().setName('profile').setDescription('Afficher ton profil')
-    .addUserOption(opt => opt.setName('user').setDescription('Utilisateur (optionnel)')),
-  async execute(interaction) {
-    const user = interaction.options.getUser('user') || interaction.user;
-    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
-    if (!row) return interaction.reply({ content: 'Aucun profil trouvé. Demande à la personne de faire /register', ephemeral: true });
-    return interaction.reply({
-      embeds: [{
-        title: `${user.tag} — profile`,
-        fields: [
-          { name: 'Pieces', value: String(row.coins), inline: true },
-          { name: 'XP', value: String(row.xp), inline: true },
-          { name: 'Level', value: String(row.level), inline: true },
-        ]
-      }]
-    });
-  }
+data: new SlashCommandBuilder().setName('profile').setDescription('Voir un profil')
+.addUserOption(o => o.setName('user').setDescription('Optionnel')),
+
+
+async execute(i) {
+const usr = i.options.getUser('user') || i.user;
+const d = db.prepare('SELECT * FROM users WHERE id = ?').get(usr.id);
+if (!d) return i.reply({ content: 'Aucun profil.', ephemeral: true });
+i.reply({ embeds: [{ title: usr.username, fields: [
+{ name: 'Coins', value: `${d.coins}` },
+{ name: 'XP', value: `${d.xp}` },
+{ name: 'Level', value: `${d.level}` }
+] }] });
+}
 };
